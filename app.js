@@ -12,7 +12,7 @@
 const LANG = {
   vi: {
     heroGreeting: 'Chào mừng bạn 👋',
-    heroTitle:    'Mua nhà tại <span>Nhật Bản</span><br>dễ dàng hơn',
+    heroTitle:    'Mua nhà tại <span>Nhật Bản</span>dễ dàng hơn',
     heroDesc:     'Tư vấn bất động sản vùng Kansai — Osaka, Kyoto, Kobe. Hỗ trợ người nước ngoài từ A đến Z.',
     qL: 'Nhà đang bán',  qLs: 'Xem danh sách',
     qC: 'Tính vay',      qCs: 'Ước tính ngay',
