@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="KansaiProp">
+  <meta name="theme-color" content="#FD7B41">
+  <link rel="manifest" href="manifest.json">
+  <title>Kansai Property Japan</title>
+
+  <!-- Font Noto Sans JP -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+
+  <!-- Giao diện -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ========== HEADER ========== -->
+  <div class="app-header">
+    <!-- Logo click về Home -->
+    <div class="header-brand" onclick="goTo('home')">
+      <div class="brand-icon">🏯</div>
+      <div>
+        <div class="brand-name" id="brandName"></div>
+        <div class="brand-sub">Osaka · Kyoto · Kobe</div>
+      </div>
+    </div>
+    <div class="lang-pills">
+      <button class="lp" onclick="setLang('ja')">日本語</button>
+      <button class="lp" onclick="setLang('en')">EN</button>
+      <button class="lp active" onclick="setLang('vi')">VI</button>
+    </div>
+  </div>
+
+
+  <!-- ========== NỘI DUNG ========== -->
+  <div class="page">
+
+    <!-- ── TRANG CHỦ ── -->
+    <div class="screen active" id="screen-home">
+
+      <!-- HERO: Tính vay nổi bật đầu tiên -->
+      <div class="hero">
+        <div class="hero-label" id="heroLabel"></div>
+        <div class="hero-title" id="heroTitle"></div>
+
+        <!-- Form tính vay nhúng trong hero -->
+        <div class="calc-hero-card">
+
+          <div class="form-group">
+            <label id="lAmountH"></label>
+            <div class="input-wrap">
+              <input type="number" id="hLoanAmt" value="3000" min="100">
+              <span class="input-suffix">万円</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label id="lMethodH"></label>
+            <div class="method-toggle">
+              <button class="method-btn active" onclick="setCalcMethod('ep',this,'h')" id="hMBtn1"></button>
+              <button class="method-btn"        onclick="setCalcMethod('eg',this,'h')" id="hMBtn2"></button>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label id="lRateH"></label>
+              <div class="input-wrap">
+                <input type="number" id="hLoanRate" value="0.5" min="0" max="30" step="0.01">
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label id="lTermH"></label>
+              <div class="input-wrap">
+                <input type="number" id="hLoanYrs" value="35" min="1" max="50">
+                <span class="input-suffix" id="hSfYear"></span>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;">
+            <button class="btn-calc" id="hBtnCalc" onclick="doCalcHome()"></button>
+          </div>
+
+          <!-- Kết quả nhanh -->
+          <div class="result-summary hidden" id="hCalcResult" style="margin-top:14px;border-radius:12px;overflow:hidden;border:1px solid var(--border);">
+            <div class="stat"><div class="stat-label" id="hRL1"></div><div class="stat-val" id="hMonthly"></div></div>
+            <div class="stat"><div class="stat-label" id="hRL2"></div><div class="stat-val dark" id="hTotal"></div></div>
+            <div class="stat"><div class="stat-label" id="hRL3"></div><div class="stat-val red" id="hInt"></div></div>
+          </div>
+
+          <!-- Link xem chi tiết -->
+          <div id="hDetailLink" class="hidden" style="text-align:center;margin-top:10px;">
+            <span onclick="goTo('calc')" style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;" id="hDetailTxt"></span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Quick links -->
+      <div class="quick-grid">
+        <div class="quick-card" onclick="goTo('listings')">
+          <div class="quick-icon">🏠</div>
+          <div class="quick-label" id="qL"></div>
+          <div class="quick-sub"   id="qLs"></div>
+        </div>
+        <div class="quick-card" onclick="goTo('knowledge')">
+          <div class="quick-icon">📚</div>
+          <div class="quick-label" id="qK"></div>
+          <div class="quick-sub"   id="qKs"></div>
+        </div>
+        <div class="quick-card" onclick="goTo('about')">
+          <div class="quick-icon">👤</div>
+          <div class="quick-label" id="qA"></div>
+          <div class="quick-sub"   id="qAs"></div>
+        </div>
+      </div>
+
+      <!-- Bài viết mới -->
+      <div class="sp" style="padding-top:0;">
+        <div class="feat-title" id="featTitle"></div>
+        <div id="homeNews"></div>
+      </div>
+    </div>
+
+
+    <!-- ── NHÀ ĐANG BÁN ── -->
+    <div class="screen" id="screen-listings">
+      <div class="sp" style="padding-bottom:8px;">
+        <div class="section-title" id="listTitle"></div>
+        <div class="section-sub"   id="listSub"></div>
+      </div>
+      <div class="cat-scroll" id="listCats"></div>
+      <div class="sp" style="padding-top:0;" id="listingsGrid"></div>
+    </div>
+
+
+    <!-- ── KIẾN THỨC ── -->
+    <div class="screen" id="screen-knowledge">
+      <div class="sp" style="padding-bottom:8px;">
+        <div class="section-title" id="knowTitle"></div>
+        <div class="section-sub"   id="knowSub"></div>
+      </div>
+      <div class="cat-scroll" id="knowCats"></div>
+      <div class="sp" style="padding-top:0;" id="articlesList"></div>
+    </div>
+
+
+    <!-- ── TÍNH VAY CHI TIẾT ── -->
+    <div class="screen" id="screen-calc">
+      <div class="sp" style="padding-bottom:0;">
+        <div class="section-title" id="calcTitle"></div>
+        <div class="section-sub"   id="calcSub"></div>
+      </div>
+
+      <div class="sp">
+        <div class="form-group">
+          <label id="lAmount"></label>
+          <div class="input-wrap">
+            <input type="number" id="loanAmt" value="3000" min="100">
+            <span class="input-suffix">万円</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label id="lMethod"></label>
+          <div class="method-toggle">
+            <button class="method-btn active" onclick="setCalcMethod('ep',this,'d')" id="mBtn1"></button>
+            <button class="method-btn"        onclick="setCalcMethod('eg',this,'d')" id="mBtn2"></button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label id="lRate"></label>
+          <div class="input-wrap">
+            <input type="number" id="loanRate" value="0.5" min="0" max="30" step="0.01">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label id="lTerm"></label>
+          <div class="row2">
+            <div class="input-wrap">
+              <input type="number" id="loanYrs" value="35" min="1" max="50">
+              <span class="input-suffix" id="sfYear"></span>
+            </div>
+            <div class="input-wrap">
+              <input type="number" id="loanMos" value="0" min="0" max="11">
+              <span class="input-suffix" id="sfMo"></span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-calc" id="btnCalc" onclick="doCalc()"></button>
+      </div>
+
+      <div class="result-box hidden" id="calcResult">
+        <div class="result-summary">
+          <div class="stat"><div class="stat-label" id="rL1"></div><div class="stat-val"     id="rMonthly"></div></div>
+          <div class="stat"><div class="stat-label" id="rL2"></div><div class="stat-val dark" id="rTotal"></div></div>
+          <div class="stat"><div class="stat-label" id="rL3"></div><div class="stat-val red"  id="rInt"></div></div>
+        </div>
+        <div class="tabs">
+          <button class="tab-btn active" onclick="showCalcTab('chart',this)" id="tcChart"></button>
+          <button class="tab-btn"        onclick="showCalcTab('table',this)" id="tcTable"></button>
+        </div>
+        <div id="calcChartWrap" class="chart-wrap"><canvas id="calcChart"></canvas></div>
+        <div id="calcTableWrap" class="section-hidden table-scroll">
+          <table>
+            <thead><tr>
+              <th id="th1"></th><th id="th2"></th><th id="th3"></th><th id="th4"></th><th id="th5"></th>
+            </tr></thead>
+            <tbody id="calcTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ── LIÊN HỆ ── -->
+    <div class="screen" id="screen-about">
+      <div class="about-hero">
+        <div class="avatar">🏯</div>
+        <div class="about-name"    id="coName"></div>
+        <div class="about-tagline" id="coTagline"></div>
+      </div>
+      <div class="stats-row" id="statsRow"></div>
+      <div class="sp" style="padding-top:0; padding-bottom:8px;">
+        <div class="card">
+          <div style="font-size:13px; line-height:1.8; color:#555550;" id="coBio"></div>
+        </div>
+      </div>
+      <div class="sp" style="padding-top:8px; padding-bottom:4px;">
+        <div class="feat-title" id="contactTitle"></div>
+      </div>
+      <div class="contact-buttons" id="contactButtons"></div>
+    </div>
+
+  </div><!-- end .page -->
+
+
+  <!-- ========== NAV DƯỚI ========== -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="goTo('home')"      id="nav-home">
+      <span class="nav-icon">🏠</span><span class="nav-label" id="nl1"></span>
+    </button>
+    <button class="nav-item"        onclick="goTo('listings')"  id="nav-listings">
+      <span class="nav-icon">🏡</span><span class="nav-label" id="nl2"></span>
+    </button>
+    <button class="nav-item"        onclick="goTo('knowledge')" id="nav-knowledge">
+      <span class="nav-icon">📚</span><span class="nav-label" id="nl3"></span>
+    </button>
+    <button class="nav-item"        onclick="goTo('calc')"      id="nav-calc">
+      <span class="nav-icon">🧮</span><span class="nav-label" id="nl4"></span>
+    </button>
+    <button class="nav-item"        onclick="goTo('about')"     id="nav-about">
+      <span class="nav-icon">👤</span><span class="nav-label" id="nl5"></span>
+    </button>
+  </nav>
+
+</div>
+
+
+<!-- ── BÀI VIẾT CHI TIẾT ── -->
+<div class="article-detail" id="articleDetail">
+  <div class="detail-header">
+    <button class="btn-back" onclick="closeArticle()">←</button>
+    <span style="font-size:14px; font-weight:600;" id="detailCat"></span>
+  </div>
+  <div class="detail-content" id="detailContent"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Dữ liệu -->
+<script src="data.js"></script>
+<!-- Logic -->
+<script src="app.js"></script>
+
+</body>
+</html>
