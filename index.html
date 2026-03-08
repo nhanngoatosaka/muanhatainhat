@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KansaiProp">
+<meta name="theme-color" content="#0c1a1a">
+<link rel="manifest" href="manifest.json">
+<title>Kansai Property Japan</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+
+<!-- ✅ Load dữ liệu từ data.js -->
+<script src="data.js"></script>
+
+<style>
+/* ============================================================
+   STYLE — Không cần sửa file này
+   Để thay đổi nội dung, sửa data.js
+   ============================================================ */
+:root {
+  --bg:#0c1a1a; --surface:#122020; --card:#172828; --card2:#1d3030;
+  --accent:#00c896; --accent2:#00a87e; --gold:#d4a853;
+  --text:#e8f0ee; --muted:#7a9e98; --border:rgba(0,200,150,0.12);
+  --danger:#ff6b6b; --nav-h:64px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--text);font-family:'Be Vietnam Pro','Noto Sans JP',sans-serif;font-size:14px;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 100% 0%,rgba(0,200,150,0.06) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 0% 100%,rgba(212,168,83,0.04) 0%,transparent 60%);pointer-events:none;z-index:0;}
+
+.app{display:flex;flex-direction:column;height:100%;position:relative;z-index:1;}
+.page{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 16px);}
+.page::-webkit-scrollbar{display:none;}
+
+/* HEADER */
+.app-header{padding:16px 20px 12px;background:rgba(12,26,26,0.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;padding-top:calc(16px + env(safe-area-inset-top,0px));}
+.header-brand{display:flex;align-items:center;gap:10px;}
+.brand-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--gold));display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 16px rgba(0,200,150,0.3);}
+.brand-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;}
+.brand-sub{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+.lang-pills{display:flex;gap:3px;background:var(--surface);border-radius:8px;padding:3px;}
+.lp{padding:4px 10px;border-radius:6px;border:none;cursor:pointer;font-size:11px;font-weight:500;background:transparent;color:var(--muted);font-family:'Be Vietnam Pro',sans-serif;transition:all .2s;}
+.lp.active{background:var(--accent);color:#0c1a1a;}
+
+/* NAV */
+.bottom-nav{height:var(--nav-h);padding-bottom:env(safe-area-inset-bottom,0px);background:rgba(12,26,26,0.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;align-items:center;position:sticky;bottom:0;z-index:50;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;cursor:pointer;border:none;background:none;color:var(--muted);transition:all .2s;}
+.nav-item.active{color:var(--accent);}
+.nav-icon{font-size:20px;transition:transform .2s;}
+.nav-item.active .nav-icon{transform:scale(1.15);}
+.nav-label{font-size:10px;font-weight:500;}
+
+/* SCREENS */
+.screen{display:none;animation:fadeIn .25s ease;}
+.screen.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* COMMON */
+.sp{padding:20px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;margin-bottom:4px;}
+.section-sub{font-size:12px;color:var(--muted);margin-bottom:20px;}
+.chip{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;background:rgba(0,200,150,0.12);color:var(--accent);border:1px solid rgba(0,200,150,0.2);}
+.chip.gold{background:rgba(212,168,83,0.12);color:var(--gold);border-color:rgba(212,168,83,0.2);}
+.hidden{display:none!important;}
+.section-hidden{display:none!important;}
+
+/* HOME */
+.hero{padding:28px 20px 20px;background:linear-gradient(160deg,rgba(0,200,150,0.08) 0%,transparent 60%);border-bottom:1px solid var(--border);}
+.hero-greeting{font-size:12px;color:var(--muted);letter-spacing:0.5px;margin-bottom:4px;}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;line-height:1.2;margin-bottom:8px;}
+.hero-title span{color:var(--accent);}
+.hero-desc{font-size:13px;color:var(--muted);line-height:1.6;}
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 20px;}
+.quick-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:all .2s;text-align:center;}
+.quick-card:active{transform:scale(0.97);}
+.quick-icon{font-size:28px;margin-bottom:8px;}
+.quick-label{font-size:12px;font-weight:600;color:var(--text);}
+.quick-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+.feat-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+
+/* LISTING */
+.listing-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:14px;transition:all .2s;}
+.listing-card:active{transform:scale(0.98);}
+.listing-img{width:100%;height:150px;background:linear-gradient(135deg,var(--card2),var(--surface));display:flex;align-items:center;justify-content:center;font-size:52px;}
+.listing-body{padding:14px;}
+.listing-price{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--accent);margin-bottom:4px;}
+.listing-name{font-size:14px;font-weight:600;margin-bottom:4px;}
+.listing-loc{font-size:12px;color:var(--muted);margin-bottom:10px;}
+.listing-tags{display:flex;gap:6px;flex-wrap:wrap;}
+
+/* ARTICLE */
+.article-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;cursor:pointer;transition:all .2s;display:flex;gap:14px;align-items:flex-start;}
+.article-card:active{transform:scale(0.98);}
+.article-icon{font-size:32px;flex-shrink:0;}
+.article-cat{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;}
+.article-title{font-size:14px;font-weight:600;line-height:1.4;margin-bottom:4px;}
+.article-preview{font-size:12px;color:var(--muted);line-height:1.5;}
+
+/* ARTICLE DETAIL */
+.article-detail{display:none;position:fixed;inset:0;z-index:200;background:var(--bg);overflow-y:auto;}
+.article-detail.open{display:block;animation:slideUp .3s ease;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.detail-header{padding:16px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;background:rgba(12,26,26,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding-top:calc(16px + env(safe-area-inset-top,0px));z-index:10;}
+.btn-back{background:none;border:none;color:var(--accent);font-size:22px;cursor:pointer;padding:4px;}
+.detail-content{padding:24px 20px;}
+.detail-content h1{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;line-height:1.3;margin-bottom:16px;}
+.detail-content h2{font-size:16px;font-weight:600;color:var(--accent);margin:20px 0 8px;}
+.detail-content p{font-size:14px;line-height:1.8;color:#c5d8d4;margin-bottom:12px;}
+.detail-content ul{padding-left:18px;margin-bottom:12px;}
+.detail-content li{font-size:14px;line-height:1.8;color:#c5d8d4;margin-bottom:4px;}
+.detail-content .tip-box{background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.2);border-radius:12px;padding:14px;margin:16px 0;}
+.detail-content .tip-box strong{color:var(--accent);display:block;margin-bottom:6px;}
+
+/* CALC */
+.form-group{margin-bottom:16px;}
+label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px;}
+.input-wrap{position:relative;}
+.input-suffix{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;pointer-events:none;}
+input[type=number],select{width:100%;padding:11px 44px 11px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'JetBrains Mono';font-size:14px;outline:none;transition:all .2s;-webkit-appearance:none;}
+input[type=number]:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,200,150,0.1);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.method-toggle{display:flex;border-radius:10px;overflow:hidden;border:1px solid var(--border);}
+.method-btn{flex:1;padding:10px;border:none;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;font-size:12px;font-weight:500;background:var(--surface);color:var(--muted);transition:all .2s;}
+.method-btn.active{background:rgba(0,200,150,0.15);color:var(--accent);}
+.btn-calc{width:100%;padding:14px;margin-top:4px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:12px;color:#0c1a1a;font-family:'Be Vietnam Pro',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .3s;box-shadow:0 4px 20px rgba(0,200,150,0.25);}
+.result-box{margin:0 20px 20px;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.result-summary{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border);}
+.stat{padding:14px 10px;text-align:center;border-right:1px solid var(--border);}
+.stat:last-child{border-right:none;}
+.stat-label{font-size:10px;color:var(--muted);margin-bottom:4px;}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--accent);}
+.stat-val.red{color:var(--danger);}
+.tabs{display:flex;gap:4px;padding:12px 16px 8px;}
+.tab-btn{padding:6px 14px;border-radius:8px;border:none;cursor:pointer;font-family:'Be Vietnam Pro',sans-serif;font-size:11px;font-weight:500;background:var(--surface);color:var(--muted);transition:all .2s;}
+.tab-btn.active{background:rgba(0,200,150,0.15);color:var(--accent);}
+.chart-wrap{padding:16px;height:200px;}
+.table-scroll{overflow-x:auto;max-height:280px;overflow-y:auto;}
+.table-scroll::-webkit-scrollbar{width:3px;}
+.table-scroll::-webkit-scrollbar-thumb{background:var(--border);}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{padding:8px 10px;text-align:right;font-size:10px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--card);}
+thead th:first-child{text-align:left;}
+tbody tr{border-bottom:1px solid rgba(255,255,255,0.03);}
+tbody td{padding:8px 10px;text-align:right;font-family:'JetBrains Mono';font-size:11px;}
+tbody td:first-child{text-align:left;font-family:'Be Vietnam Pro';color:var(--muted);}
+.c-prin{color:#60a5fa;}.c-int{color:var(--danger);}
+
+/* ABOUT */
+.about-hero{padding:32px 20px 24px;background:linear-gradient(160deg,rgba(212,168,83,0.06) 0%,transparent 60%);text-align:center;border-bottom:1px solid var(--border);}
+.avatar{width:80px;height:80px;border-radius:20px;margin:0 auto 14px;background:linear-gradient(135deg,var(--accent),var(--gold));display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 24px rgba(0,200,150,0.25);}
+.about-name{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;margin-bottom:4px;}
+.about-tagline{font-size:13px;color:var(--muted);margin-bottom:14px;}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:16px 20px;}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--accent);}
+.stat-desc{font-size:10px;color:var(--muted);margin-top:2px;}
+.contact-buttons{display:flex;flex-direction:column;gap:10px;padding:8px 20px 20px;}
+.contact-btn{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;border:1px solid var(--border);cursor:pointer;background:var(--card);transition:all .2s;text-decoration:none;color:var(--text);}
+.contact-btn:active{transform:scale(0.98);}
+.contact-btn-icon{font-size:22px;width:36px;text-align:center;}
+.contact-btn-label{font-size:13px;font-weight:600;}
+.contact-btn-sub{font-size:11px;color:var(--muted);}
+
+/* CAT FILTER */
+.cat-scroll{display:flex;gap:8px;padding:0 20px 16px;overflow-x:auto;}
+.cat-scroll::-webkit-scrollbar{display:none;}
+.cat-pill{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:12px;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0;}
+.cat-pill.active{background:rgba(0,200,150,0.12);color:var(--accent);border-color:rgba(0,200,150,0.3);}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(var(--nav-h) + 16px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--card2);border:1px solid var(--accent);border-radius:10px;padding:10px 18px;font-size:12px;color:var(--accent);opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="header-brand">
+      <div class="brand-icon">🏯</div>
+      <div>
+        <div class="brand-name" id="brandName"></div>
+        <div class="brand-sub">Osaka · Kyoto · Kobe</div>
+      </div>
+    </div>
+    <div class="lang-pills">
+      <button class="lp" onclick="setLang('ja')">日本語</button>
+      <button class="lp" onclick="setLang('en')">EN</button>
+      <button class="lp active" onclick="setLang('vi')">VI</button>
+    </div>
+  </div>
+
+  <!-- PAGE CONTENT -->
+  <div class="page">
+
+    <!-- HOME -->
+    <div class="screen active" id="screen-home">
+      <div class="hero">
+        <div class="hero-greeting" id="heroGreeting"></div>
+        <div class="hero-title" id="heroTitle"></div>
+        <div class="hero-desc" id="heroDesc"></div>
+      </div>
+      <div class="quick-grid">
+        <div class="quick-card" onclick="goTo('listings')">
+          <div class="quick-icon">🏠</div>
+          <div class="quick-label" id="qL"></div>
+          <div class="quick-sub" id="qLs"></div>
+        </div>
+        <div class="quick-card" onclick="goTo('calc')">
+          <div class="quick-icon">🧮</div>
+          <div class="quick-label" id="qC"></div>
+          <div class="quick-sub" id="qCs"></div>
+        </div>
+        <div class="quick-card" onclick="goTo('knowledge')">
+          <div class="quick-icon">📚</div>
+          <div class="quick-label" id="qK"></div>
+          <div class="quick-sub" id="qKs"></div>
+        </div>
+        <div class="quick-card" onclick="goTo('about')">
+          <div class="quick-icon">👤</div>
+          <div class="quick-label" id="qA"></div>
+          <div class="quick-sub" id="qAs"></div>
+        </div>
+      </div>
+      <div class="sp" style="padding-top:0;">
+        <div class="feat-title" id="featTitle"></div>
+        <div id="homeNews"></div>
+      </div>
+    </div>
+
+    <!-- LISTINGS -->
+    <div class="screen" id="screen-listings">
+      <div class="sp" style="padding-bottom:8px;">
+        <div class="section-title" id="listTitle"></div>
+        <div class="section-sub" id="listSub"></div>
+      </div>
+      <div class="cat-scroll" id="listCats"></div>
+      <div class="sp" style="padding-top:0;" id="listingsGrid"></div>
+    </div>
+
+    <!-- KNOWLEDGE -->
+    <div class="screen" id="screen-knowledge">
+      <div class="sp" style="padding-bottom:8px;">
+        <div class="section-title" id="knowTitle"></div>
+        <div class="section-sub" id="knowSub"></div>
+      </div>
+      <div class="cat-scroll" id="knowCats"></div>
+      <div class="sp" style="padding-top:0;" id="articlesList"></div>
+    </div>
+
+    <!-- CALC -->
+    <div class="screen" id="screen-calc">
+      <div class="sp" style="padding-bottom:0;">
+        <div class="section-title" id="calcTitle"></div>
+        <div class="section-sub" id="calcSub"></div>
+      </div>
+      <div class="sp">
+        <div class="form-group">
+          <label id="lAmount"></label>
+          <div class="input-wrap"><input type="number" id="loanAmt" value="3000" min="100"><span class="input-suffix">万円</span></div>
+        </div>
+        <div class="form-group">
+          <label id="lMethod"></label>
+          <div class="method-toggle">
+            <button class="method-btn active" onclick="setCalcMethod('ep',this)" id="mBtn1"></button>
+            <button class="method-btn" onclick="setCalcMethod('eg',this)" id="mBtn2"></button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label id="lRate"></label>
+          <div class="input-wrap"><input type="number" id="loanRate" value="0.5" min="0" max="30" step="0.01"><span class="input-suffix">%</span></div>
+        </div>
+        <div class="form-group">
+          <label id="lTerm"></label>
+          <div class="row2">
+            <div class="input-wrap"><input type="number" id="loanYrs" value="35" min="1" max="50"><span class="input-suffix" id="sfYear"></span></div>
+            <div class="input-wrap"><input type="number" id="loanMos" value="0" min="0" max="11"><span class="input-suffix" id="sfMo"></span></div>
+          </div>
+        </div>
+        <button class="btn-calc" id="btnCalc" onclick="doCalc()"></button>
+      </div>
+
+      <div class="result-box hidden" id="calcResult">
+        <div class="result-summary">
+          <div class="stat"><div class="stat-label" id="rL1"></div><div class="stat-val" id="rMonthly"></div></div>
+          <div class="stat"><div class="stat-label" id="rL2"></div><div class="stat-val red" id="rTotal"></div></div>
+          <div class="stat"><div class="stat-label" id="rL3"></div><div class="stat-val" id="rInt"></div></div>
+        </div>
+        <div class="tabs">
+          <button class="tab-btn active" onclick="showCalcTab('chart',this)" id="tcChart"></button>
+          <button class="tab-btn" onclick="showCalcTab('table',this)" id="tcTable"></button>
+        </div>
+        <div id="calcChartWrap" class="chart-wrap"><canvas id="calcChart"></canvas></div>
+        <div id="calcTableWrap" class="section-hidden table-scroll" style="padding-bottom:8px;">
+          <table><thead><tr>
+            <th id="th1"></th><th id="th2"></th><th id="th3"></th><th id="th4"></th><th id="th5"></th>
+          </tr></thead><tbody id="calcTbody"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="screen" id="screen-about">
+      <div class="about-hero">
+        <div class="avatar">🏯</div>
+        <div class="about-name" id="coName"></div>
+        <div class="about-tagline" id="coTagline"></div>
+      </div>
+      <div class="stats-row" id="statsRow"></div>
+      <div class="sp" style="padding-top:0;padding-bottom:8px;">
+        <div class="card"><div style="font-size:13px;line-height:1.8;color:#c5d8d4;" id="coBio"></div></div>
+      </div>
+      <div class="sp" style="padding-top:8px;padding-bottom:4px;">
+        <div class="feat-title" id="contactTitle"></div>
+      </div>
+      <div class="contact-buttons" id="contactButtons"></div>
+    </div>
+
+  </div><!-- end .page -->
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="goTo('home')" id="nav-home">
+      <span class="nav-icon">🏠</span><span class="nav-label" id="nl1"></span>
+    </button>
+    <button class="nav-item" onclick="goTo('listings')" id="nav-listings">
+      <span class="nav-icon">🏡</span><span class="nav-label" id="nl2"></span>
+    </button>
+    <button class="nav-item" onclick="goTo('knowledge')" id="nav-knowledge">
+      <span class="nav-icon">📚</span><span class="nav-label" id="nl3"></span>
+    </button>
+    <button class="nav-item" onclick="goTo('calc')" id="nav-calc">
+      <span class="nav-icon">🧮</span><span class="nav-label" id="nl4"></span>
+    </button>
+    <button class="nav-item" onclick="goTo('about')" id="nav-about">
+      <span class="nav-icon">👤</span><span class="nav-label" id="nl5"></span>
+    </button>
+  </nav>
+</div>
+
+<!-- ARTICLE DETAIL OVERLAY -->
+<div class="article-detail" id="articleDetail">
+  <div class="detail-header">
+    <button class="btn-back" onclick="closeArticle()">←</button>
+    <span style="font-size:14px;font-weight:600;" id="detailCat"></span>
+  </div>
+  <div class="detail-content" id="detailContent"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+//  APP LOGIC — Không cần sửa file này
+//  Để thay đổi nội dung: sửa data.js
+// ============================================================
+
+// ---- LANG STRINGS ----
+const L = {
+  vi: {
+    heroGreeting:'Chào mừng bạn 👋',
+    heroTitle:'Mua nhà tại <span>Nhật Bản</span><br>dễ dàng hơn',
+    heroDesc:'Tư vấn bất động sản vùng Kansai — Osaka, Kyoto, Kobe. Hỗ trợ người nước ngoài từ A đến Z.',
+    qL:'Nhà đang bán', qLs:'Xem danh sách',
+    qC:'Tính vay',     qCs:'Ước tính ngay',
+    qK:'Kiến thức',    qKs:'Check nhà, pháp lý',
+    qA:'Liên hệ',      qAs:'Tư vấn miễn phí',
+    featTitle:'TIN TỨC MỚI NHẤT',
+    listTitle:'Nhà đang bán', listSub:'Kansai · Osaka · Kyoto · Kobe',
+    knowTitle:'Kiến thức BĐS Nhật', knowSub:'Kinh nghiệm thực tế · Pháp lý · Thị trường',
+    calcTitle:'Tính vay', calcSub:'Ước tính khoản vay mua nhà Nhật',
+    lAmount:'Số tiền vay', lMethod:'Phương thức trả',
+    lRate:'Lãi suất năm (%)', lTerm:'Thời hạn vay',
+    mBtn1:'Trả đều (gốc+lãi)', mBtn2:'Trả đều gốc',
+    btnCalc:'Tính toán →',
+    rL1:'Hàng tháng', rL2:'Tổng trả', rL3:'Tổng lãi',
+    tcChart:'Biểu đồ', tcTable:'Bảng chi tiết',
+    th1:'Tháng', th2:'Trả/tháng', th3:'Gốc', th4:'Lãi', th5:'Dư nợ',
+    contactTitle:'LIÊN HỆ NGAY',
+    nl1:'Trang chủ', nl2:'Nhà bán', nl3:'Kiến thức', nl4:'Tính vay', nl5:'Liên hệ',
+    catAll:'Tất cả', sfYear:'năm', sfMo:'tháng',
+    forSale:'Đang bán', apt:'Chung cư', house:'Nhà riêng',
+  },
+  en: {
+    heroGreeting:'Welcome 👋',
+    heroTitle:'Buy property in <span>Japan</span><br>made easy',
+    heroDesc:'Real estate consulting in Kansai — Osaka, Kyoto, Kobe. Full support for foreigners.',
+    qL:'Listings',     qLs:'Browse now',
+    qC:'Loan Calc',    qCs:'Estimate now',
+    qK:'Knowledge',    qKs:'Inspection, legal',
+    qA:'Contact',      qAs:'Free consultation',
+    featTitle:'LATEST NEWS',
+    listTitle:'Properties for Sale', listSub:'Kansai · Osaka · Kyoto · Kobe',
+    knowTitle:'Japan Real Estate Guide', knowSub:'Practical advice · Legal · Market',
+    calcTitle:'Loan Calculator', calcSub:'Estimate your Japan home loan',
+    lAmount:'Loan Amount', lMethod:'Repayment Method',
+    lRate:'Annual Interest (%)', lTerm:'Loan Term',
+    mBtn1:'Equal Payment', mBtn2:'Equal Principal',
+    btnCalc:'Calculate →',
+    rL1:'Monthly', rL2:'Total', rL3:'Interest',
+    tcChart:'Chart', tcTable:'Schedule',
+    th1:'Month', th2:'Payment', th3:'Principal', th4:'Interest', th5:'Balance',
+    contactTitle:'CONTACT US',
+    nl1:'Home', nl2:'Listings', nl3:'Knowledge', nl4:'Loan Calc', nl5:'Contact',
+    catAll:'All', sfYear:'yr', sfMo:'mo',
+    forSale:'For Sale', apt:'Apartment', house:'House',
+  },
+  ja: {
+    heroGreeting:'ようこそ 👋',
+    heroTitle:'<span>日本</span>の不動産購入を<br>もっと身近に',
+    heroDesc:'関西エリア（大阪・京都・神戸）の不動産をサポート。外国人のお客様も安心。',
+    qL:'物件一覧',     qLs:'一覧を見る',
+    qC:'ローン計算',   qCs:'今すぐ試算',
+    qK:'お役立ち情報', qKs:'物件チェック・法律',
+    qA:'お問い合わせ', qAs:'無料相談',
+    featTitle:'最新ニュース',
+    listTitle:'売り出し中の物件', listSub:'関西 · 大阪 · 京都 · 神戸',
+    knowTitle:'不動産お役立ちガイド', knowSub:'実践的アドバイス · 法律 · 市場動向',
+    calcTitle:'ローン計算', calcSub:'住宅ローンの試算',
+    lAmount:'借入金額', lMethod:'返済方式',
+    lRate:'金利（年利）', lTerm:'返済期間',
+    mBtn1:'元利均等', mBtn2:'元金均等',
+    btnCalc:'計算する →',
+    rL1:'月払い', rL2:'総返済額', rL3:'利息合計',
+    tcChart:'グラフ', tcTable:'返済一覧',
+    th1:'年月', th2:'返済額', th3:'元金', th4:'利息', th5:'残高',
+    contactTitle:'お問い合わせ',
+    nl1:'ホーム', nl2:'物件', nl3:'ガイド', nl4:'ローン', nl5:'相談',
+    catAll:'すべて', sfYear:'年', sfMo:'ヶ月',
+    forSale:'売り出し中', apt:'マンション', house:'一戸建て',
+  },
+};
+
+// ---- STATE ----
+let lang = 'vi';
+let calcMethod = 'ep';
+let chartInst = null;
+let listFilter = 'all';
+let knowFilter = 'all';
+
+// ---- HELPERS ----
+// Lấy dữ liệu: ưu tiên localStorage (Admin Panel), fallback về data.js
+function getListings() {
+  try { return JSON.parse(localStorage.getItem('listings')) || LISTINGS; } catch { return LISTINGS; }
+}
+function getArticles() {
+  try { return JSON.parse(localStorage.getItem('articles')) || ARTICLES; } catch { return ARTICLES; }
+}
+function getCompany() {
+  try { return JSON.parse(localStorage.getItem('company')) || { ...COMPANY, contacts: CONTACTS }; } catch { return { ...COMPANY, contacts: CONTACTS }; }
+}
+
+// ---- LANG ----
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lp').forEach((b,i) => b.classList.toggle('active', ['ja','en','vi'][i] === l));
+  const S = L[l];
+  Object.keys(S).forEach(k => {
+    const el = document.getElementById(k);
+    if (!el) return;
+    if (k === 'heroTitle') el.innerHTML = S[k];
+    else el.textContent = S[k];
+  });
+  renderAll();
+}
+
+// ---- NAV ----
+function goTo(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('screen-' + screen).classList.add('active');
+  document.getElementById('nav-' + screen).classList.add('active');
+  document.querySelector('.page').scrollTop = 0;
+}
+
+// ---- RENDER ALL ----
+function renderAll() {
+  const co = getCompany();
+  document.getElementById('brandName').textContent = co.name;
+  document.getElementById('coName').textContent    = co.name;
+  document.getElementById('coTagline').textContent = co.tagline;
+  document.getElementById('coBio').textContent     = co.bio;
+  renderStats(co);
+  renderContacts(co);
+  renderHomeNews();
+  renderListings();
+  renderArticles();
+}
+
+function renderStats(co) {
+  document.getElementById('statsRow').innerHTML = (co.stats || COMPANY.stats).map(s => `
+    <div class="stat-box">
+      <div class="stat-num">${s.number}</div>
+      <div class="stat-desc">${s.label[lang] || s.label.vi}</div>
+    </div>`).join('');
+}
+
+function renderContacts(co) {
+  const contacts = co.contacts || CONTACTS;
+  document.getElementById('contactButtons').innerHTML = contacts.map(c => `
+    <a class="contact-btn" href="${c.url}" target="_blank">
+      <span class="contact-btn-icon">${c.icon}</span>
+      <span>
+        <div class="contact-btn-label">${c.label}</div>
+        <div class="contact-btn-sub">${c.sub}</div>
+      </span>
+    </a>`).join('');
+}
+
+function renderHomeNews() {
+  const arts = getArticles().slice(0, 2);
+  document.getElementById('homeNews').innerHTML = arts.map(a => `
+    <div class="article-card" onclick="openArticle(${a.id})" style="margin-bottom:12px;">
+      <div class="article-icon">${a.emoji}</div>
+      <div>
+        <div class="article-cat">${a.catLabel}</div>
+        <div class="article-title">${lang==='ja'?a.titleJa:lang==='en'?a.titleEn:a.title}</div>
+        <div class="article-preview">${a.preview}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderListings() {
+  const S = L[lang];
+  const listings = getListings();
+  const cats = [
+    { key: 'all',       label: S.catAll },
+    { key: 'apartment', label: S.apt },
+    { key: 'house',     label: S.house },
+  ];
+  document.getElementById('listCats').innerHTML = cats.map(c => `
+    <div class="cat-pill ${listFilter===c.key?'active':''}" onclick="filterListings('${c.key}')">${c.label}</div>`).join('');
+  const filtered = listFilter === 'all' ? listings : listings.filter(l => l.type === listFilter);
+  document.getElementById('listingsGrid').innerHTML = filtered.map(l => `
+    <div class="listing-card">
+      <div class="listing-img">${l.emoji}</div>
+      <div class="listing-body">
+        <div class="listing-price">${l.price}</div>
+        <div class="listing-name">${lang==='ja'?l.name:lang==='en'?l.nameEn:l.nameVi}</div>
+        <div class="listing-loc">📍 ${l.area}</div>
+        <div class="listing-tags">
+          <span class="chip">${l.beds}</span>
+          <span class="chip">${l.sqm}</span>
+          <span class="chip gold">${S.forSale}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function filterListings(cat) { listFilter = cat; renderListings(); }
+
+function renderArticles() {
+  const S = L[lang];
+  const articles = getArticles();
+  const catMap = {};
+  articles.forEach(a => catMap[a.cat] = a.catLabel);
+  const cats = ['all', ...Object.keys(catMap)];
+  document.getElementById('knowCats').innerHTML = cats.map(c => `
+    <div class="cat-pill ${knowFilter===c?'active':''}" onclick="filterArticles('${c}')">${c==='all'?S.catAll:catMap[c]}</div>`).join('');
+  const filtered = knowFilter === 'all' ? articles : articles.filter(a => a.cat === knowFilter);
+  document.getElementById('articlesList').innerHTML = filtered.map(a => `
+    <div class="article-card" onclick="openArticle(${a.id})">
+      <div class="article-icon">${a.emoji}</div>
+      <div>
+        <div class="article-cat">${a.catLabel}</div>
+        <div class="article-title">${lang==='ja'?a.titleJa:lang==='en'?a.titleEn:a.title}</div>
+        <div class="article-preview">${a.preview}</div>
+      </div>
+    </div>`).join('');
+}
+
+function filterArticles(cat) { knowFilter = cat; renderArticles(); }
+
+function openArticle(id) {
+  const a = getArticles().find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('detailCat').textContent = a.catLabel;
+  document.getElementById('detailContent').innerHTML = lang==='ja'?a.content:lang==='en'?a.content:a.content;
+  document.getElementById('articleDetail').classList.add('open');
+}
+function closeArticle() { document.getElementById('articleDetail').classList.remove('open'); }
+
+// ---- CALC ----
+function setCalcMethod(m, btn) {
+  calcMethod = m;
+  document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function doCalc() {
+  const principal = parseFloat(document.getElementById('loanAmt').value) * 10000;
+  const rate = parseFloat(document.getElementById('loanRate').value) / 100 / 12;
+  const total = (parseInt(document.getElementById('loanYrs').value)||0)*12 + (parseInt(document.getElementById('loanMos').value)||0);
+  if (!principal || !total) return;
+  const sched = [];
+  let balance = principal;
+  const basePrin = principal / total;
+  for (let i = 0; i < total; i++) {
+    const interest = balance * rate;
+    let prin, payment;
+    if (calcMethod === 'ep') {
+      payment = rate === 0 ? principal/total : principal * rate * Math.pow(1+rate,total) / (Math.pow(1+rate,total)-1);
+      prin = payment - interest;
+    } else {
+      prin = basePrin; payment = prin + interest;
+    }
+    balance -= prin; if (balance < 0.01) balance = 0;
+    sched.push({ mo:i+1, payment:Math.round(payment), principal:Math.round(prin), interest:Math.round(interest), balance:Math.round(balance) });
+  }
+  const S = L[lang];
+  const fmt = n => Math.round(Math.abs(n)).toLocaleString();
+  const totalPay = sched.reduce((s,r)=>s+r.payment,0);
+  const totalInt = sched.reduce((s,r)=>s+r.interest,0);
+  document.getElementById('rMonthly').textContent = '¥'+fmt(sched[0].payment);
+  document.getElementById('rTotal').textContent   = '¥'+fmt(totalPay);
+  document.getElementById('rInt').textContent     = '¥'+fmt(totalInt);
+  document.getElementById('calcResult').classList.remove('hidden');
+  const step = Math.max(1, Math.floor(sched.length/48));
+  const sam = sched.filter((_,i) => i%step===0);
+  const ctx = document.getElementById('calcChart').getContext('2d');
+  if (chartInst) chartInst.destroy();
+  chartInst = new Chart(ctx, {
+    type:'line',
+    data:{ labels:sam.map(r=>'#'+r.mo), datasets:[
+      {label:S.th5, data:sam.map(r=>Math.round(r.balance/10000)), borderColor:'#00c896', backgroundColor:'rgba(0,200,150,0.08)', fill:true, tension:0.4, pointRadius:0, borderWidth:2},
+      {label:S.th4, data:sam.map(r=>Math.round(r.interest/10000)), borderColor:'#ff6b6b', fill:false, tension:0.4, pointRadius:0, borderWidth:1.5},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#7a9e98',font:{size:10},boxWidth:10}}},scales:{x:{ticks:{color:'#4a7a74',font:{size:9},maxTicksLimit:6},grid:{color:'rgba(255,255,255,0.03)'}},y:{ticks:{color:'#4a7a74',font:{size:9},callback:v=>'¥'+v+'万'},grid:{color:'rgba(255,255,255,0.03)'}}}}
+  });
+  document.getElementById('calcTbody').innerHTML = sched.map(r =>
+    `<tr><td>${r.mo}</td><td>¥${fmt(r.payment)}</td><td class="c-prin">¥${fmt(r.principal)}</td><td class="c-int">¥${fmt(r.interest)}</td><td>¥${fmt(r.balance)}</td></tr>`
+  ).join('');
+}
+
+function showCalcTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('calcChartWrap').classList.toggle('section-hidden', tab !== 'chart');
+  document.getElementById('calcTableWrap').classList.toggle('section-hidden', tab !== 'table');
+}
+
+// ---- PWA ----
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+
+// ---- INIT ----
+setLang('vi');
+</script>
+</body>
+</html>
