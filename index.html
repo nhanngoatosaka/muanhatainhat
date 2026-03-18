@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="KansaiProp">
+  <meta name="theme-color" content="#FD7B41">
+  <link rel="manifest" href="manifest.json">
+  <title>Kansai Property Japan</title>
+
+  <!-- Font Noto Sans JP -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+
+  <!-- Giao diện -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ========== HEADER ========== -->
+  <div class="app-header">
+    <!-- Logo click về Home -->
+    <div class="header-brand" onclick="goTo('home')">
+      <div class="brand-icon">🏯</div>
+      <div>
+        <div class="brand-name" id="brandName"></div>
+        <div class="brand-sub">Osaka · Kyoto · Kobe</div>
+      </div>
+    </div>
+    <div class="lang-pills">
+      <button class="lp" onclick="setLang('ja')">日本語</button>
+      <button class="lp" onclick="setLang('en')">EN</button>
+      <button class="lp active" onclick="setLang('vi')">VI</button>
+    </div>
+  </div>
+
+
+  <!-- ========== NỘI DUNG ========== -->
+  <div class="page">
+
+    <!-- ── TRANG CHỦ ── -->
+    <div class="screen active" id="screen-home">
+
+      <!-- HERO: Tính vay nổi bật đầu tiên -->
+      <div class="hero">
+        <div class="hero-label" id="heroLabel"></div>
+        <div class="hero-title" id="heroTitle"></div>
+
+        <!-- Form tính vay nhúng trong hero -->
+        <div class="calc-hero-card">
+
+          <div class="form-group">
+            <label id="lAmountH"></label>
+            <div class="input-wrap">
+              <input type="number" id="hLoanAmt" value="3000" min="100">
+              <span class="input-suffix">万円</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label id="lMethodH"></label>
+            <div class="method-toggle">
+              <button class="method-btn active" onclick="setCalcMethod('ep',this,'h')" id="hMBtn1"></button>
+              <button class="method-btn"        onclick="setCalcMethod('eg',this,'h')" id="hMBtn2"></button>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label id="lRateH"></label>
+              <div class="input-wrap">
+                <input type="number" id="hLoanRate" value="0.5" min="0" max="30" step="0.01">
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label id="lTermH"></label>
+              <div class="input-wrap">
+                <input type="number" id="hLoanYrs" value="35" min="1" max="50">
+                <span class="input-suffix" id="hSfYear"></span>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;">
+            <button class="btn-calc" id="hBtnCalc" onclick="doCalcHome()"></button>
+          </div>
+
+          <!-- Kết quả nhanh -->
+          <div class="result-summary hidden" id="hCalcResult" style="margin-top:14px;border-radius:12px;overflow:hidden;border:1px solid var(--border);">
+            <div class="stat"><div class="stat-label" id="hRL1"></div><div class="stat-val" id="hMonthly"></div></div>
+            <div class="stat"><div class="stat-label" id="hRL2"></div><div class="stat-val dark" id="hTotal"></div></div>
+            <div class="stat"><div class="stat-label" id="hRL3"></div><div class="stat-val red" id="hInt"></div></div>
+          </div>
+
+          <!-- Link xem chi tiết -->
+          <div id="hDetailLink" class="hidden" style="text-align:center;margin-top:10px;">
+            <span onclick="goTo('calc')" style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;" id="hDetailTxt"></span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Quick links -->
+      <div class="quick-grid">
+        <div class="quick-card" onclick="goTo('rental')">
+          <div class="quick-icon">🏘️</div>
+          <div class="quick-label" id="qR"></div>
+          <div class="quick-sub"   id="qRs"></div>
+        </div>
+        <div class="quick-card" onclick="goTo('knowledge')">
+          <div class="quick-icon">📚</div>
+          <div class="quick-label" id="qK"></div>
+          <div class="quick-sub"   id="qKs"></div>
+        </div>
+        <div class="quick-card" onclick="goTo('about')">
+          <div class="quick-icon">👤</div>
+          <div class="quick-label" id="qA"></div>
+          <div class="quick-sub"   id="qAs"></div>
+        </div>
+      </div>
+      <!-- Tab nhà bán tạm ẩn — bật lại sau khi validate user -->
+      <!-- <div class="quick-card" onclick="goTo('listings')">
+        <div class="quick-icon">🏠</div>
+        <div class="quick-label" id="qL"></div>
+        <div class="quick-sub" id="qLs"></div>
+      </div> -->
+
+      <!-- Bài viết mới -->
+      <div class="sp" style="padding-top:0;">
+        <div class="feat-title" id="featTitle"></div>
+        <div id="homeNews"></div>
+      </div>
+    </div>
+
+
+    <!-- ── NHÀ ĐANG BÁN ── -->
+    <div class="screen" id="screen-listings">
+      <div class="sp" style="padding-bottom:8px;">
+        <div class="section-title" id="listTitle"></div>
+        <div class="section-sub"   id="listSub"></div>
+      </div>
+      <div class="cat-scroll" id="listCats"></div>
+      <div class="sp" style="padding-top:0;" id="listingsGrid"></div>
+    </div>
+
+
+    <!-- ── KIẾN THỨC ── -->
+    <div class="screen" id="screen-knowledge">
+      <div class="sp" style="padding-bottom:8px;">
+        <div class="section-title" id="knowTitle"></div>
+        <div class="section-sub"   id="knowSub"></div>
+      </div>
+      <div class="cat-scroll" id="knowCats"></div>
+      <div class="sp" style="padding-top:0;" id="articlesList"></div>
+    </div>
+
+
+    <!-- ── TÍNH VAY CHI TIẾT ── -->
+    <div class="screen" id="screen-calc">
+      <div class="sp" style="padding-bottom:0;">
+        <div class="section-title" id="calcTitle"></div>
+        <div class="section-sub"   id="calcSub"></div>
+      </div>
+
+      <div class="sp">
+        <div class="form-group">
+          <label id="lAmount"></label>
+          <div class="input-wrap">
+            <input type="number" id="loanAmt" value="3000" min="100">
+            <span class="input-suffix">万円</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label id="lMethod"></label>
+          <div class="method-toggle">
+            <button class="method-btn active" onclick="setCalcMethod('ep',this,'d')" id="mBtn1"></button>
+            <button class="method-btn"        onclick="setCalcMethod('eg',this,'d')" id="mBtn2"></button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label id="lRate"></label>
+          <div class="input-wrap">
+            <input type="number" id="loanRate" value="0.5" min="0" max="30" step="0.01">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label id="lTerm"></label>
+          <div class="row2">
+            <div class="input-wrap">
+              <input type="number" id="loanYrs" value="35" min="1" max="50">
+              <span class="input-suffix" id="sfYear"></span>
+            </div>
+            <div class="input-wrap">
+              <input type="number" id="loanMos" value="0" min="0" max="11">
+              <span class="input-suffix" id="sfMo"></span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-calc" id="btnCalc" onclick="doCalc()"></button>
+      </div>
+
+      <div class="result-box hidden" id="calcResult">
+        <div class="result-summary">
+          <div class="stat"><div class="stat-label" id="rL1"></div><div class="stat-val"     id="rMonthly"></div></div>
+          <div class="stat"><div class="stat-label" id="rL2"></div><div class="stat-val dark" id="rTotal"></div></div>
+          <div class="stat"><div class="stat-label" id="rL3"></div><div class="stat-val red"  id="rInt"></div></div>
+        </div>
+        <div class="tabs">
+          <button class="tab-btn active" onclick="showCalcTab('chart',this)" id="tcChart"></button>
+          <button class="tab-btn"        onclick="showCalcTab('table',this)" id="tcTable"></button>
+        </div>
+        <div id="calcChartWrap" class="chart-wrap"><canvas id="calcChart"></canvas></div>
+        <div id="calcTableWrap" class="section-hidden table-scroll">
+          <table>
+            <thead><tr>
+              <th id="th1"></th><th id="th2"></th><th id="th3"></th><th id="th4"></th><th id="th5"></th>
+            </tr></thead>
+            <tbody id="calcTbody"></tbody>
+          </table>
+        </div>
+
+      <!-- ── CHI PHÍ MUA NHÀ (hiện sau khi tính vay xong) ── -->
+      <div id="buyCostSection" class="hidden">
+
+        <div class="section-divider">
+          <div class="divider-line"></div>
+          <div class="divider-label" id="buySectionLabel"></div>
+          <div class="divider-line"></div>
+        </div>
+
+        <!-- Toggle loại nhà -->
+        <div class="type-toggle">
+          <button class="type-btn active" onclick="setHouseType('apartment',this)" id="btnApt"></button>
+          <button class="type-btn"        onclick="setHouseType('house',this)"     id="btnHouse"></button>
+        </div>
+
+        <!-- A. Chi phí 1 lần đầu -->
+        <div class="form-card">
+          <div class="form-card-title"><div class="form-card-title-bar"></div><span id="buyCardA"></span></div>
+          <div class="form-group">
+            <label id="buyLabelStamp"></label>
+            <div class="input-wrap"><input type="number" id="buyStamp" value="0" min="0"><span class="input-suffix">円</span></div>
+            <div class="hint">契約書印紙代</div>
+          </div>
+          <div class="form-group">
+            <label id="buyLabelAgent"></label>
+            <div class="input-wrap"><input type="number" id="buyAgent" value="0" min="0"><span class="input-suffix">円</span></div>
+            <div class="hint">仲介手数料</div>
+          </div>
+          <div class="form-group">
+            <label id="buyLabelReg1"></label>
+            <div class="input-wrap"><input type="number" id="buyReg1" value="0" min="0"><span class="input-suffix">円</span></div>
+            <div class="hint">登記費用（所有権移転・保存）</div>
+          </div>
+          <div class="form-group">
+            <label id="buyLabelReg2"></label>
+            <div class="input-wrap"><input type="number" id="buyReg2" value="0" min="0"><span class="input-suffix">円</span></div>
+            <div class="hint">登記費用（抵当権設定）</div>
+          </div>
+          <div id="buyOnetimeExtras"></div>
+          <button class="btn-add-row" onclick="addExtra('buyOnetimeExtras','buyOnetimeExtraList')">
+            <div class="btn-add-circle">＋</div><span id="buyAddOnetime"></span>
+          </button>
+        </div>
+
+        <!-- B. Chi phí định kỳ -->
+        <div class="form-card">
+          <div class="form-card-title"><div class="form-card-title-bar"></div><span id="buyCardB"></span></div>
+          <div class="form-group">
+            <label id="buyLabelTax"></label>
+            <div class="input-wrap"><input type="number" id="buyTax" value="0" min="0"><span class="input-suffix">円/年</span></div>
+            <div class="hint">固定資産税・都市計画税 → tự ÷12 ra tháng</div>
+          </div>
+          <div class="form-group">
+            <label id="buyLabelFire"></label>
+            <div class="input-wrap"><input type="number" id="buyFire" value="0" min="0"><span class="input-suffix">円/5年</span></div>
+            <div class="hint">火災保険料 → tự ÷60 ra tháng</div>
+          </div>
+        </div>
+
+        <!-- C. Chung cư -->
+        <div class="form-card" id="cardApartment">
+          <div class="form-card-title"><div class="form-card-title-bar"></div><span id="buyCardC"></span></div>
+          <div class="form-group">
+            <label id="buyLabelMgmt"></label>
+            <div class="input-wrap"><input type="number" id="buyMgmt" value="0" min="0"><span class="input-suffix">円/月</span></div>
+            <div class="hint">管理費・積立金</div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label id="buyLabelParking"></label>
+            <div class="input-wrap"><input type="number" id="buyParking" value="0" min="0"><span class="input-suffix">円/月</span></div>
+            <div class="hint">駐車場代</div>
+          </div>
+        </div>
+
+        <!-- D. Nhà riêng -->
+        <div class="form-card hidden" id="cardHouse">
+          <div class="form-card-title"><div class="form-card-title-bar"></div><span id="buyCardD"></span></div>
+          <div class="form-group">
+            <label id="buyLabelRepair"></label>
+            <div class="input-wrap"><input type="number" id="buyRepairCost" value="0" min="0"><span class="input-suffix">円/回</span></div>
+            <div class="hint">外壁・屋根塗装など</div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label id="buyLabelRepairEvery"></label>
+            <div class="input-wrap"><input type="number" id="buyRepairEvery" value="10" min="1" max="30"><span class="input-suffix" id="buyRepairUnit"></span></div>
+            <div class="hint">→ tự ÷ số tháng ra tháng</div>
+          </div>
+        </div>
+
+        <!-- Nút tính -->
+        <div style="padding: 0 20px 4px;">
+          <button class="btn-calc" id="btnBuyCost" onclick="calcBuyCost()"></button>
+        </div>
+
+        <!-- Kết quả chi phí 1 lần -->
+        <div class="result-dark hidden" id="buyResultOnetime">
+          <div class="result-dark-label" id="buyResOnetimeLabel"></div>
+          <div class="result-dark-val"   id="buyResOnetimeVal"></div>
+          <div class="result-dark-rows"  id="buyResOnetimeRows"></div>
+        </div>
+
+        <!-- Kết quả hàng tháng -->
+        <div class="result-monthly-card hidden" id="buyResultMonthly">
+          <div class="result-monthly-header">
+            <div>
+              <div class="result-monthly-label" id="buyResMonthlyLabel"></div>
+              <div class="result-monthly-val"   id="buyResMonthlyVal"></div>
+              <div class="result-monthly-sub"   id="buyResMonthlyLoanPart"></div>
+            </div>
+          </div>
+          <div class="result-rows" id="buyResMonthlyRows"></div>
+        </div>
+
+        <div class="result-note" id="buyResNote"></div>
+
+      </div>
+      <!-- end buyCostSection -->
+
+    </div>
+
+
+    <!-- ── LIÊN HỆ ── -->
+    <div class="screen" id="screen-about">
+      <div class="about-hero">
+        <div class="avatar">🏯</div>
+        <div class="about-name"    id="coName"></div>
+        <div class="about-tagline" id="coTagline"></div>
+      </div>
+      <div class="stats-row" id="statsRow"></div>
+      <div class="sp" style="padding-top:0; padding-bottom:8px;">
+        <div class="card">
+          <div style="font-size:13px; line-height:1.8; color:#555550;" id="coBio"></div>
+        </div>
+      </div>
+      <div class="sp" style="padding-top:8px; padding-bottom:4px;">
+        <div class="feat-title" id="contactTitle"></div>
+      </div>
+      <div class="contact-buttons" id="contactButtons"></div>
+    </div>
+
+    <!-- TÍNH TIỀN THUÊ NHÀ -->
+    <div class="screen" id="screen-rental">
+      <div style="padding:20px 20px 8px;">
+        <div class="section-title" id="rentalTitle"></div>
+        <div class="section-sub"   id="rentalSub"></div>
+      </div>
+
+      <!-- Toggle chu kỳ HĐ -->
+      <div style="padding:0 20px 4px;"><label id="rentalCycleLabel"></label></div>
+      <div class="type-toggle" style="margin-bottom:14px;">
+        <button class="type-btn" onclick="setRentalCycle(1,this)" id="rCycle1"></button>
+        <button class="type-btn active" onclick="setRentalCycle(2,this)" id="rCycle2"></button>
+      </div>
+
+      <!-- ① Hàng tháng -->
+      <div class="form-card">
+        <div class="form-card-title"><div class="form-card-title-bar"></div><span id="rCard1"></span></div>
+        <div class="form-group">
+          <label id="rLabelRent"></label>
+          <div class="input-wrap"><input type="number" id="rRent" value="0" min="0"><span class="input-suffix">円/月</span></div>
+          <div class="hint">家賃</div>
+        </div>
+        <div class="form-group">
+          <label id="rLabelParking"></label>
+          <div class="input-wrap"><input type="number" id="rParking" value="0" min="0"><span class="input-suffix">円/月</span></div>
+          <div class="hint">駐車場代（なければ0）</div>
+        </div>
+        <div id="rMonthlyExtras"></div>
+        <button class="btn-add-row" onclick="addExtra('rMonthlyExtras','rMonthlyExtraList')">
+          <div class="btn-add-circle">＋</div><span id="rAddMonthly"></span>
+        </button>
+      </div>
+
+      <!-- ② Đầu vào lần đầu -->
+      <div class="form-card">
+        <div class="form-card-title"><div class="form-card-title-bar"></div><span id="rCard2"></span></div>
+        <div class="form-group">
+          <label id="rLabelIns"></label>
+          <div class="input-wrap"><input type="number" id="rIns" value="0" min="0"><span class="input-suffix">円</span></div>
+          <div class="hint">火災保険料（2年分）</div>
+        </div>
+        <div class="form-group">
+          <label id="rLabelGuarantee"></label>
+          <div class="input-wrap"><input type="number" id="rGuarantee" value="0" min="0"><span class="input-suffix">円</span></div>
+          <div class="hint">保証会社初回料</div>
+        </div>
+        <div class="form-group">
+          <label id="rLabelKey"></label>
+          <div class="input-wrap"><input type="number" id="rKey" value="0" min="0"><span class="input-suffix">円</span></div>
+          <div class="hint">鍵交換代</div>
+        </div>
+        <div class="form-group">
+          <label id="rLabelBroker"></label>
+          <div class="input-wrap"><input type="number" id="rBroker" value="0" min="0"><span class="input-suffix">円</span></div>
+          <div class="hint">仲介手数料</div>
+        </div>
+        <div class="form-group">
+          <label id="rLabelSanitation"></label>
+          <div class="input-wrap"><input type="number" id="rSanitation" value="0" min="0"><span class="input-suffix">円</span></div>
+          <div class="hint">光触媒・除菌プラス</div>
+        </div>
+        <div id="rMoveInExtras"></div>
+        <button class="btn-add-row" onclick="addExtra('rMoveInExtras','rMoveInExtraList')">
+          <div class="btn-add-circle">＋</div><span id="rAddMoveIn"></span>
+        </button>
+      </div>
+
+      <!-- ③ Gia hạn -->
+      <div class="form-card">
+        <div class="form-card-title"><div class="form-card-title-bar"></div><span id="rCard3"></span></div>
+        <div class="form-group">
+          <label id="rLabelRenewal"></label>
+          <div class="input-wrap"><input type="number" id="rRenewal" value="0" min="0"><span class="input-suffix">円/回</span></div>
+          <div class="hint">契約の更新料</div>
+        </div>
+        <div class="form-group">
+          <label id="rLabelRenewalGuar"></label>
+          <div class="input-wrap"><input type="number" id="rRenewalGuar" value="0" min="0"><span class="input-suffix">円/回</span></div>
+          <div class="hint">保証料（更新時）</div>
+        </div>
+        <div id="rRenewalExtras"></div>
+        <button class="btn-add-row" onclick="addExtra('rRenewalExtras','rRenewalExtraList')">
+          <div class="btn-add-circle">＋</div><span id="rAddRenewal"></span>
+        </button>
+      </div>
+
+      <!-- ④ Ra nhà -->
+      <div class="form-card">
+        <div class="form-card-title"><div class="form-card-title-bar"></div><span id="rCard4"></span></div>
+        <div class="form-group">
+          <label id="rLabelClean"></label>
+          <div class="input-wrap"><input type="number" id="rClean" value="0" min="0"><span class="input-suffix">円</span></div>
+          <div class="hint">ハウスクリーニング費</div>
+        </div>
+        <div class="form-group">
+          <label id="rLabelEarlyExit"></label>
+          <div class="input-wrap"><input type="number" id="rEarlyExit" value="0" min="0"><span class="input-suffix">円</span></div>
+          <div class="hint">早期解約違約金（なければ0）</div>
+        </div>
+        <div id="rMoveOutExtras"></div>
+        <button class="btn-add-row" onclick="addExtra('rMoveOutExtras','rMoveOutExtraList')">
+          <div class="btn-add-circle">＋</div><span id="rAddMoveOut"></span>
+        </button>
+      </div>
+
+      <!-- Số năm thuê -->
+      <div class="form-card">
+        <div class="form-card-title"><div class="form-card-title-bar"></div><span id="rCard5"></span></div>
+        <div class="form-group" style="margin-bottom:0;">
+          <div class="input-wrap"><input type="number" id="rYears" value="2" min="1" max="30"><span class="input-suffix" id="rYearsUnit"></span></div>
+        </div>
+      </div>
+
+      <!-- Nút tính -->
+      <div style="padding:4px 20px 16px;">
+        <button class="btn-calc" id="btnRentalCalc" onclick="calcRental()"></button>
+      </div>
+
+      <!-- Kết quả 1 lần -->
+      <div class="result-dark hidden" id="rResOnetime">
+        <div class="result-dark-label" id="rResOnetimeLabel"></div>
+        <div class="result-dark-val"   id="rResOnetimeVal"></div>
+        <div class="result-dark-rows"  id="rResOnetimeRows"></div>
+      </div>
+
+      <!-- Kết quả hàng tháng -->
+      <div class="result-monthly-card hidden" id="rResMonthly">
+        <div class="result-monthly-header">
+          <div>
+            <div class="result-monthly-label" id="rResMonthlyLabel"></div>
+            <div class="result-monthly-val"   id="rResMonthlyVal"></div>
+            <div class="result-monthly-sub"   id="rResMonthlyAvg"></div>
+          </div>
+        </div>
+        <div class="result-rows" id="rResMonthlyRows"></div>
+      </div>
+
+      <!-- Ghi chú logic -->
+      <div class="result-note hidden" id="rResNote"></div>
+
+    </div>
+
+  </div><!-- end .page -->
+
+
+  <!-- ========== NAV DƯỚI ========== -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="goTo('home')"      id="nav-home">
+      <span class="nav-icon">🏠</span><span class="nav-label" id="nl1"></span>
+    </button>
+    <button class="nav-item"        onclick="goTo('knowledge')" id="nav-knowledge">
+      <span class="nav-icon">📚</span><span class="nav-label" id="nl3"></span>
+    </button>
+    <button class="nav-item"        onclick="goTo('calc')"      id="nav-calc">
+      <span class="nav-icon">🧮</span><span class="nav-label" id="nl4"></span>
+    </button>
+    <button class="nav-item"        onclick="goTo('rental')"    id="nav-rental">
+      <span class="nav-icon">🏘️</span><span class="nav-label" id="nl6"></span>
+    </button>
+    <button class="nav-item"        onclick="goTo('about')"     id="nav-about">
+      <span class="nav-icon">👤</span><span class="nav-label" id="nl5"></span>
+    </button>
+
+    <!-- Tab nhà bán — tạm ẩn, bật lại sau khi validate -->
+    <!-- 
+    <button class="nav-item" onclick="goTo('listings')" id="nav-listings">
+      <span class="nav-icon">🏡</span><span class="nav-label" id="nl2"></span>
+    </button>
+    -->
+  </nav>
+
+</div>
+
+
+<!-- ── BÀI VIẾT CHI TIẾT ── -->
+<div class="article-detail" id="articleDetail">
+  <div class="detail-header">
+    <button class="btn-back" onclick="closeArticle()">←</button>
+    <span style="font-size:14px; font-weight:600;" id="detailCat"></span>
+  </div>
+  <div class="detail-content" id="detailContent"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Dữ liệu -->
+<script src="data.js"></script>
+<!-- Logic -->
+<script src="app.js"></script>
+
+</body>
+</html>
